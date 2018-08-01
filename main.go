@@ -118,10 +118,14 @@ func main() {
 
 	for {
 		//simple read
-		buffer := make([]byte, 1024)
-		inbound.ReadFrom(buffer)
-		outbound.Write(buffer)
-		Trace.Println("Received:", buffer)
+		buffer := make([]byte, 16384)
+		receivedInt, srcAddr, err := inbound.ReadFrom(buffer)
+
+		if err != nil {
+			log.Fatal(err)
+		}
+		outbound.Write(buffer[0:receivedInt])
+		Trace.Println("SRC:", srcAddr, "Received:", buffer)
 	}
 
 }
