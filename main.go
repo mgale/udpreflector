@@ -60,7 +60,9 @@ func main() {
     --listenport 0.0.0.0:2055
     --destip X.X.X.X
     --destport 2055
-    --bindport 2000 <- Local port to bind to for sending data
+	--bindport 2000 <- Local port to bind to for sending data
+	  When bindport is used returned traffic will not be sent back
+	  to the original client.
     --verbose
     --debug
     
@@ -97,18 +99,18 @@ func main() {
 		Info.Println("Remaining: ", remaining)
 	}
 
-	// listen to incoming udp packets
+	// listen for incoming udp packets
 	inbound, err := net.ListenPacket("udp", *listenaddrPtr)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	localaddr := net.UDPAddr{IP: net.ParseIP("0.0.0.0"), Port: *bindportPtr}
-	remoteaddr := net.UDPAddr{IP: net.ParseIP("192.168.1.100"), Port: *destportPtr}
-	outbound, errout := net.DialUDP("udp", &localaddr, &remoteaddr)
+	remoteaddr := net.UDPAddr{IP: net.ParseIP(*destipPtr), Port: *destportPtr}
+	outbound, err := net.DialUDP("udp", &localaddr, &remoteaddr)
 
-	if errout != nil {
-		Error.Println(errout)
+	if err != nil {
+		Error.Println(err)
 	}
 
 	defer inbound.Close()
@@ -119,7 +121,6 @@ func main() {
 		buffer := make([]byte, 1024)
 		inbound.ReadFrom(buffer)
 		outbound.Write(buffer)
-
 		Trace.Println("Received:", buffer)
 	}
 
