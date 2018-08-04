@@ -60,9 +60,7 @@ func main() {
     --listenport 0.0.0.0:2055
     --destip X.X.X.X
     --destport 2055
-	--bindport 2000 <- Local port to bind to for sending data
-	  When bindport is used returned traffic will not be sent back
-	  to the original client.
+	--bindport 2000
     --verbose
     --debug
     
@@ -116,9 +114,11 @@ func main() {
 	defer inbound.Close()
 	defer outbound.Close()
 
+	buffer := make([]byte, 16384)
+
 	for {
 		//simple read
-		buffer := make([]byte, 16384)
+
 		receivedInt, srcAddr, err := inbound.ReadFrom(buffer)
 
 		if err != nil {
